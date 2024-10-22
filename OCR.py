@@ -19,7 +19,7 @@ def OCR():
     while True:
         success, img = cap.read()
         imgT = img.copy()
-        textRecongized = pytesseract.image_to_string(img,lang='eng');textRecongized=textRecongized.replace("\n\x0c", "");
+        textRecongized = pytesseract.image_to_string(img,lang='eng');textRecongized=textRecongized.replace("\n\x0c", "")
         print(textRecongized)
         imgT=cv2.putText(imgT,textRecongized,(img.shape[0]+120,img.shape[1]+120), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0,255,0), 1, cv2.LINE_AA)
         cv2.imshow("Image", imgT)

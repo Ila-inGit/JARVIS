@@ -1,17 +1,18 @@
+import os
 import cv2
 
+directory = os.path.dirname(os.path.abspath(__file__))
 recognizer = cv2.face.LBPHFaceRecognizer_create() # Local Binary Patterns Histograms
-recognizer.read('trainer/trainer.yml')   #load trained model
-cascadePath = "haarcascade_frontalface_default.xml"
-faceCascade = cv2.CascadeClassifier(cascadePath) #initializing haar cascade for object detection approach
+recognizer.read(directory + '\\trainer\\trainer.yml')   #load trained model
+faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml") #initializing haar cascade for object detection approach
 
 font = cv2.FONT_HERSHEY_SIMPLEX #denotes the font type
 
 
-id = 2 #number of persons you want to Recognize
+id = 3 #number of persons you want to Recognize
 
 
-names = ['','avi']  #names, leave first empty bcz counter starts from 0
+names = ['','','ilaria']  #names, leave first empty bcz counter starts from 0
 
 
 cam = cv2.VideoCapture(0, cv2.CAP_DSHOW) #cv2.CAP_DSHOW to remove warning

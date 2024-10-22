@@ -1,17 +1,14 @@
 from difflib import get_close_matches
-import pyttsx3
+import os
+from helpers import speak, model_create_file
 import json
 import speech_recognition as sr
 
+directory = os.path.dirname(os.path.abspath(__file__))
 data = json.load(open('data.json'))
-engine = pyttsx3.init()
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
-
-
-def speak(audio):
-    engine.say(audio)
-    engine.runAndWait()
+# engine = pyttsx3.init()
+# voices = engine.getProperty('voices')
+# engine.setProperty('voice', voices[0].id)
 
 
 def takeCommand():
@@ -36,26 +33,29 @@ def takeCommand():
     return query
 
 
-def translate(word):
+def search_meaning(word):
     word = word.lower()
     if word in data:
-        speak(data[word])
+        model_create_file(data[word], directory + "\\recorded_voice\\word_to_search.wav")
+        speak(directory + "\\recorded_voice\\word_to_search.wav")
+        
     elif len(get_close_matches(word, data.keys())) > 0:
         x = get_close_matches(word, data.keys())[0]
-        speak('Did you mean ' + x +
-              ' instead,  respond with Yes or No.')
+        model_create_file('Did you mean ' + x + '? respond with Yes or No.', directory + "\\recorded_voice\\did_you_mean.wav")
+        speak(directory + "\\recorded_voice\\did_you_mean.wav")
         ans = takeCommand().lower()
         if 'yes' in ans:
-            speak(data[x])
+            model_create_file(data[x], directory + "\\recorded_voice\\dict_results.wav")
+            speak(directory + "\\recorded_voice\\dict_results.wav")
         elif 'no' in ans:
-            speak("Word doesn't exist. Please make sure you spelled it correctly.")
+            speak(directory + "\\recorded_voice\\no_word_found.wav")
         else:
             #changed from we to I
-            speak("I did not understand your entry.")
+            speak(directory + "\\recorded_voice\\no_understand.wav")
 
     else:
-        speak("Word doesn't exist. Please double check it.")
+        speak( directory + "\\recorded_voice\\dict_error.wav")
 
 
 if __name__ == '__main__':
-    translate()
+    search_meaning()

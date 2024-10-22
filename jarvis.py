@@ -1,24 +1,26 @@
 import pyttsx3
 import wikipedia
 import speech_recognition as sr
+from helpers import *
 import webbrowser
 import datetime
 import os
 import sys
 import smtplib
-from news import speak_news, getNewsUrl
 from OCR import OCR
-from diction import translate
-from helpers import *
+from diction import search_meaning
 from youtube import youtube
 from sys import platform
 import os
 import getpass
 import cv2
+from news import speak_news, getNewsUrl
 
-engine = pyttsx3.init()
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
+# engine = pyttsx3.init()
+# voices = engine.getProperty('voices') #getting details of current voice
+# engine.setProperty('voice', voices[0].id)
+
+directory = os.path.dirname(os.path.abspath(__file__))
 
 # print(voices[0].id)
 
@@ -31,7 +33,7 @@ class Jarvis:
             self.chrome_path = 'open -a /Applications/Google\ Chrome.app'
 
         elif platform == "win32":
-            self.chrome_path = 'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe'
+            self.chrome_path = 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
         else:
             print('Unsupported OS')
             exit(1)
@@ -42,55 +44,56 @@ class Jarvis:
     def wishMe(self) -> None:
         hour = int(datetime.datetime.now().hour)
         if hour >= 0 and hour < 12:
-            speak("Good Morning SIR")
+            speak(directory + "\\recorded_voice\\good_morning.wav")
         elif hour >= 12 and hour < 18:
-            speak("Good Afternoon SIR")
-
+            speak(directory + "\\recorded_voice\\good_afternoon.wav")
         else:
-            speak('Good Evening SIR')
+            speak(directory + "\\recorded_voice\\good_evening.wav")
 
-        weather()
-        speak('I am JARVIS. Please tell me how can I help you SIR?')
+        ##weather()
+        speak(directory + "\\recorded_voice\\hello.wav")
 
     def sendEmail(self, to, content) -> None:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.ehlo()
         server.starttls()
-        server.login('email', 'password')
+        server.login('ilaria.c765@gmail.com', '#my')
         server.sendmail('email', to, content)
         server.close()
 
     def execute_query(self, query):
         # TODO: make this more concise
         if 'wikipedia' in query:
-            speak('Searching Wikipedia....')
+            speak( directory + "\\recorded_voice\\search_wiki.wav")
             query = query.replace('wikipedia', '')
-            results = wikipedia.summary(query, sentences=2)
-            speak('According to Wikipedia')
+            results = wikipedia.summary(f'{query}', sentences=2)
+            speak(directory + "\\recorded_voice\\accoirdingTo_wiki.wav")
             print(results)
-            speak(results)
+            model_create_file(results, directory + "\\recorded_voice\\results_wiki.wav")
+            speak(directory + "\\recorded_voice\\results_wiki.wav")
+
         elif 'youtube downloader' in query:
             exec(open('youtube_downloader.py').read())
             
-        
-            
-        elif 'voice' in query:
-            if 'female' in query:
-                engine.setProperty('voice', voices[1].id)
-            else:
-                engine.setProperty('voice', voices[0].id)
-            speak("Hello Sir, I have switched my voice. How is it?")
+        # elif 'voice' in query:
+        #     if 'female' in query:
+        #         engine.setProperty('voice', voices[1].id)
+        #     else:
+        #         engine.setProperty('voice', voices[0].id)
+        #     speak("Hello Sir, I have switched my voice. How is it?")
 
         if 'jarvis are you there' in query:
-            speak("Yes Sir, at your service")
+            speak(directory + "\\recorded_voice\\are_you_there.wav")
+
         if 'jarvis who made you' in query:
-            speak("Yes Sir, my master build me in AI")
+            speak(directory + "\\recorded_voice\\built_you.wav")
             
-         
-
         elif 'open youtube' in query:
-
             webbrowser.get('chrome').open_new_tab('https://youtube.com')
+
+        elif 'search youtube' in query:
+            speak(directory + "\\recorded_voice\\youtube_search.wav")
+            youtube(takeCommand())
             
         elif 'open amazon' in query:
             webbrowser.get('chrome').open_new_tab('https://amazon.com')
@@ -98,58 +101,63 @@ class Jarvis:
         elif 'cpu' in query:
             cpu()
 
-        elif 'joke' in query:
-            joke()
+        elif 'notepad' in query:
+            open_notepad()
+        
+        elif 'command prompt' in query:
+            open_cmd()
+        
+        elif 'calculator' in query:
+            open_calculator()
 
         elif 'screenshot' in query:
-            speak("taking screenshot")
+            speak(directory + "\\recorded_voice\\sreenshot.wav")
             screenshot()
 
         elif 'open google' in query:
             webbrowser.get('chrome').open_new_tab('https://google.com')
 
-        elif 'open stackoverflow' in query:
+        elif 'stackoverflow' in query:
             webbrowser.get('chrome').open_new_tab('https://stackoverflow.com')
 
         elif 'play music' in query:
-            os.startfile("D:\\RoiNa.mp3")
+            ## os.startfile("D:\\RoiNa.mp3")
+            webbrowser.get('chrome').open_new_tab('https://open.spotify.com')
 
-        elif 'search youtube' in query:
-            speak('What you want to search on Youtube?')
-            youtube(takeCommand())
         elif 'the time' in query:
             strTime = datetime.datetime.now().strftime("%H:%M:%S")
-            speak(f'Sir, the time is {strTime}')
+            model_create_file(f'Sir, the time is {strTime}', directory + "\\recorded_voice\\time.wav")
+            speak(directory + "\\recorded_voice\\time.wav")
 
         elif 'search' in query:
-            speak('What do you want to search for?')
+            speak(directory + "\\recorded_voice\\search.wav")
             search = takeCommand()
             url = 'https://google.com/search?q=' + search
             webbrowser.get('chrome').open_new_tab(
                 url)
-            speak('Here is What I found for' + search)
+            model_create_file('Here is What I found for ' + search, directory + "\\recorded_voice\\result_search.wav")
+            speak(directory + "\\recorded_voice\\result_search.wav")
 
         elif 'location' in query:
-            speak('What is the location?')
+            speak(directory + "\\recorded_voice\\location.wav")
             location = takeCommand()
             url = 'https://google.nl/maps/place/' + location + '/&amp;'
             webbrowser.get('chrome').open_new_tab(url)
-            speak('Here is the location ' + location)
+            model_create_file('Here is the location ' + location, directory + "\\recorded_voice\\result_location.wav")
+            speak(directory + "\\recorded_voice\\result_location.wav")
 
         elif 'your master' in query:
-            if platform == "win32" or "darwin":
-                speak('Gaurav is my master. He created me couple of days ago')
-            elif platform == "linux" or platform == "linux2":
-                name = getpass.getuser()
-                speak(name, 'is my master. He is running me right now')
+            speak(directory + "\\recorded_voice\\master.wav")
 
         elif 'your name' in query:
-            speak('My name is JARVIS')
+            speak(directory + "\\recorded_voice\\name.wav")
+            
         elif 'who made you' in query:
-            speak('I was created by my AI master in 2021')
+            speak(directory + "\\recorded_voice\\built_you.wav")
             
         elif 'stands for' in query:
-            speak('J.A.R.V.I.S stands for JUST A RATHER VERY INTELLIGENT SYSTEM')
+            speak(directory + "\\recorded_voice\\stands_for.wav")
+
         elif 'open code' in query:
             if platform == "win32":
                 os.startfile(
@@ -157,76 +165,65 @@ class Jarvis:
             elif platform == "linux" or platform == "linux2" or "darwin":
                 os.system('code .')
 
-        elif 'shutdown' in query:
+        elif 'shutdown the computer' in query:
             if platform == "win32":
                 os.system('shutdown /p /f')
             elif platform == "linux" or platform == "linux2" or "darwin":
                 os.system('poweroff')
 
-        elif 'cpu' in query:
-            cpu()
         elif 'your friend' in query:
-            speak('My friends are Google assisstant alexa and siri')
+            speak(directory + "\\recorded_voice\\friends.wav")
 
         elif 'joke' in query:
             joke()
 
-        elif 'screenshot' in query:
-            speak("taking screenshot")
-            screenshot()
-
         elif 'github' in query:
             webbrowser.get('chrome').open_new_tab(
-                'https://github.com/gauravsingh9356')
+                'https://github.com/Ila-inGit')
 
         elif 'remember that' in query:
-            speak("what should i remember sir")
+            speak(directory + "\\recorded_voice\\remember.wav")
             rememberMessage = takeCommand()
-            speak("you said me to remember"+rememberMessage)
+            speak("you said me to remember"+ rememberMessage)
+            model_create_file("you said me to remember "+ rememberMessage, directory + "\\recorded_voice\\result_remember.wav")
+            speak(directory + "\\recorded_voice\\result_remember.wav")
             remember = open('data.txt', 'w')
             remember.write(rememberMessage)
             remember.close()
 
         elif 'do you remember anything' in query:
             remember = open('data.txt', 'r')
-            speak("you said me to remember that" + remember.read())
+            speak(directory + "\\recorded_voice\\result_remember.wav")
 
         elif 'sleep' in query:
             sys.exit()
 
         elif 'dictionary' in query:
-            speak('What you want to search in your intelligent dictionary?')
-            translate(takeCommand())
+            speak(directory + "\\recorded_voice\\dictionary.wav")
+            search_meaning(takeCommand())
 
         elif 'news' in query:
-            speak('Ofcourse sir..')
+            speak( directory + "\\recorded_voice\\of_course.wav")
             speak_news()
-            speak('Do you want to read the full news...')
+            speak(directory + "\\recorded_voice\\full_news_ask.wav")
             test = takeCommand()
             if 'yes' in test:
-                speak('Ok Sir, Opening browser...')
+                speak(directory + "\\recorded_voice\\open_browser.wav")
                 webbrowser.open(getNewsUrl())
-                speak('You can now read the full news from this website.')
+                speak(directory + "\\recorded_voice\\all_news.wav")
             else:
-                speak('No Problem Sir')
-
-        elif 'voice' in query:
-            if 'female' in query:
-                engine.setProperty('voice', voices[0].id)
-            else:
-                engine.setProperty('voice', voices[1].id)
-            speak("Hello Sir, I have switched my voice. How is it?")
+                speak(directory + "\\recorded_voice\\no_problem.wav")
 
         elif 'email to gaurav' in query:
             try:
-                speak('What should I say?')
+                speak(directory + "\\recorded_voice\\email_what.wav")
                 content = takeCommand()
                 to = 'email'
                 self.sendEmail(to, content)
-                speak('Email has been sent!')
+                speak( directory + "\\recorded_voice\\email_success.wav")
 
             except Exception as e:
-                speak('Sorry sir, Not able to send email at the moment')
+                speak( directory + "\\recorded_voice\\email_error.wav")
 
 
 def wakeUpJARVIS():
@@ -240,17 +237,17 @@ def wakeUpJARVIS():
 if __name__ == '__main__':
     
     recognizer = cv2.face.LBPHFaceRecognizer_create() # Local Binary Patterns Histograms
-    recognizer.read('./Face-Recognition/trainer/trainer.yml')   #load trained model
-    cascadePath = "./Face-Recognition/haarcascade_frontalface_default.xml"
-    faceCascade = cv2.CascadeClassifier(cascadePath) #initializing haar cascade for object detection approach
+    recognizer.read(directory + '\\Face-Recognition\\trainer\\trainer.yml')   #load trained model
+    cascadePath = directory + "\\Face-Recognition\\haarcascade_frontalface_default.xml"
+    faceCascade = cv2.CascadeClassifier(cascadePath) # initializing haar cascade for object detection approach
 
     font = cv2.FONT_HERSHEY_SIMPLEX #denotes the font type
 
 
-    id = 2 #number of persons you want to Recognize
+    id = 3 #number of persons you want to Recognize
 
 
-    names = ['','Gaurav']  #names, leave first empty bcz counter starts from 0
+    names = ['','','ilaria']  #names, leave first empty bcz counter starts from 0
 
 
     cam = cv2.VideoCapture(0, cv2.CAP_DSHOW) #cv2.CAP_DSHOW to remove warning
@@ -280,19 +277,18 @@ if __name__ == '__main__':
 
             cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2) #used to draw a rectangle on any image
 
-            id, accuracy = recognizer.predict(converted_image[y:y+h,x:x+w]) #to predict on every single image
+            id, loss = recognizer.predict(converted_image[y:y+h,x:x+w]) #to predict on every single image
 
             # Check if accuracy is less them 100 ==> "0" is perfect match 
-            if (accuracy < 100):
-                
+            if (loss < 55):
                 # Do a bit of cleanup
-                speak("Optical Face Recognition Done. Welcome")
+                speak(directory + "\\recorded_voice\\facial_yes.wav")
                 cam.release()
                 cv2.destroyAllWindows()
                 wakeUpJARVIS()
             else:
-                speak("Optical Face Recognition Failed")
-                break;
+                #speak(directory + "\\recorded_voice\\facial_no.wav")
+                break
 
 
     

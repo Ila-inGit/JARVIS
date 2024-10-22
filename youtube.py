@@ -11,7 +11,7 @@ elif platform == "darwin":
     chrome_path = 'open -a /Applications/Google\ Chrome.app'
 
 elif platform == "win32":
-    chrome_path = 'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe'
+    chrome_path = 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
 else:
     print('Unsupported OS')
     exit(1)

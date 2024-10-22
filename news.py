@@ -1,32 +1,34 @@
+import os
+import time
 import requests
 import json
 import pyttsx3
+from helpers import tts, model_create_file, speak
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
 
+directory = os.path.dirname(os.path.abspath(__file__))
 
-def speak(audio):
-    engine.say(audio)
-    engine.runAndWait()
-
+import pygame
 
 def speak_news():
-    url = 'http://newsapi.org/v2/top-headlines?sources=the-times-of-india&apiKey=yourapikey'
+    url = 'http://newsapi.org/v2/top-headlines?country=it&apiKey=0bd57861d4814db2843ceb30350849f9'
     news = requests.get(url).text
     news_dict = json.loads(news)
     arts = news_dict['articles']
-    speak('Source: The Times Of India')
-    speak('Todays Headlines are..')
+    speak("\\recorded_voice\\italy_check.wav")
+    speak('\\recorded_voice\\italy_headlines.wav')
     for index, articles in enumerate(arts):
-        speak(articles['title'])
+        model_create_file(phrase=articles['title'],file_path=directory + "\\recorded_voice\\news_stop.wav")
+        speak(directory + "\\recorded_voice\\news_stop.wav")
         if index == len(arts)-1:
             break
-        speak('Moving on the next news headline..')
-    speak('These were the top headlines, Have a nice day Sir!!..')
+        speak("\\recorded_voice\\italy_next.wav")
+    speak("\\recorded_voice\\news_stop.wav")
 
 def getNewsUrl():
-    return 'http://newsapi.org/v2/top-headlines?sources=the-times-of-india&apiKey=yourapikey'
+    return 'http://newsapi.org/v2/top-headlines?country=it&apiKey=0bd57861d4814db2843ceb30350849f9'
 
 if __name__ == '__main__':
     speak_news()
